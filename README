@@ -1,0 +1,55 @@
+sudo apt-get install python3
+sudo apt-get install python3-pip
+sudo apt-get install python3-picamera
+
+
+npm install raspicam
+
+
+avconv -r 10 -qscale 2 -i /home/pi/shots/shots_%03d.jpg video.mp4
+
+
+
+from picamera import PiCamera
+from time import sleep, time
+from datetime import datetime
+from gpiozero import Button
+
+camera = PiCamera()
+camera.resolution = (2592, 1944)
+camera.framerate = 15
+
+button = Button(17)
+frame = 1
+timer = 60
+
+while True:
+    try:
+        # button.wait_for_press()q
+        camera.annotate_text = "Hello world!"
+        # qtimestamp = datetime.now().isoformat()
+        camera.capture('/home/pi/timelapse/shots_%03d.jpg' % frame)
+        frame += 1
+        sleep(timer)
+    except KeyboardInterrupt:
+        break
+
+# video recording
+# camera.start_recording('/home/pi/video.h264')
+# sleep(10)
+# camera.stop_recording()
+
+# effects
+# camera.start_preview()
+# for effect in camera.IMAGE_EFFECTS:
+#     camera.image_effect = effect
+#     camera.annotate_text = "Effect: %s" % effect
+#     sleep(5)
+# camera.stop_preview()
+
+# camera.start_preview()
+# for expo in camera.EXPOSURE_MODES:
+#     camera.exposure_mode = expo
+#     camera.annotate_text = "Exposure: %s" % expo
+#     sleep(5)
+# camera.stop_preview()
