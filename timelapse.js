@@ -1,31 +1,31 @@
 var fs = require("fs");
 var moment = require("moment");
-var RaspiCam = require("raspicam");
+var avconv = require("avconv");
+var Camera = require("raspicam");
 
 // Setup
 // console.log(`This platform is ${process.platform}`);
-// TODO: for a timelapse created a unique folder (date based)
+// TODO:
 try {
   fs.accessSync(__dirname + "/shots");
 } catch (e) {
   fs.mkdirSync(__dirname + "/shots");
 }
+var dir = moment().format("YYYYMMDD-hhmmss");
 
 // Camera timelapse
-var dir = moment().format("YYYYMMDD-HHMMSS");
 var opts = {
         mode: "timelapse", //photo, timelapse, video
-        output: "/home/pi/shots/shots_%03d.jpg",
-        timelapse: 20000,
+        output: __dirname + "/shots/" + dir + "/%04d.jpg",
+        timelapse: 60000,
+        timeout: 2000000,
         width: 2592,
-        height: 1944
-        // framerate: 15,
+        height: 1944,
+        quality: 80
 };
-var camera = new RaspiCam(opts);
+var camera = new Camera(opts, {silent: true});
 camera.start( );
 
-//to stop a timelapse or video recoqrding
-// camera.stop( );
 
 //listen for the "started" event triggered when the start method has been successfully initiated
 camera.on("start", function(){
@@ -34,10 +34,11 @@ camera.on("start", function(){
 
 //listen for the "read" event triggered when each new photo/video is saved
 camera.on("read", function(err, filename){
-	// console.log("one more photo!");
+	console.log("one more photo!");
 });
 
 //listen for the process to exit when the timeout has been reached
 camera.on("exit", function(){
-	// console.log("stopping timelapse....");
+	console.log("stopping timelapse....");
+  // camera.stop();
 });
