@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/MincheeLab/raspicamapp#readme",
   "dependencies": {
-    "imagesnapjs": "0.0.7",
+    "avconv": "^3.0.2",
     "moment": "^2.15.1",
     "raspicam": "^0.2.13"
   }
