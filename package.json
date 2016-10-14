@@ -1,0 +1,28 @@
+{
+  "name": "raspicamapp",
+  "version": "0.0.1",
+  "description": "app to control Raspberry Pi Camera",
+  "main": "timelapse.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "raspberrypi",
+    "camera"
+  ],
+  "author": "Gerald Estadieu",
+  "license": "GPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MincheeLab/raspicamapp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MincheeLab/raspicamapp/issues"
+  },
+  "homepage": "https://github.com/MincheeLab/raspicamapp#readme",
+  "dependencies": {
+    "imagesnapjs": "0.0.7",
+    "moment": "^2.15.1",
+    "raspicam": "^0.2.13"
+  }
+}
