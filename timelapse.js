@@ -16,7 +16,7 @@ var dir = moment().format("YYYYMMDD-hhmmss");
 // Camera timelapse
 var opts = {
         mode: "timelapse", //photo, timelapse, video
-        output: __dirname + "/shots/" + dir + "/%04d.jpg",
+        output: __dirname + "/shots/" + dir + "/photo-%04d.jpg",
         timelapse: 60000,
         timeout: 2000000,
         width: 2592,
@@ -40,5 +40,6 @@ camera.on("read", function(err, filename){
 //listen for the process to exit when the timeout has been reached
 camera.on("exit", function(){
 	console.log("stopping timelapse....");
-  // camera.stop();
+  // avconv -r 10 -qscale 2 -i /home/pi/shots/shots_%03d.jpg video.mp4
+  camera.stop();
 });
