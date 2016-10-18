@@ -22,7 +22,10 @@
   "homepage": "https://github.com/MincheeLab/raspicamapp#readme",
   "dependencies": {
     "avconv": "^3.0.2",
+    "express": "^4.14.0",
+    "json-file-plus": "^3.3.0",
     "moment": "^2.15.1",
-    "raspicam": "^0.2.13"
+    "raspicam": "^0.2.13",
+    "socket.io": "^1.5.0"
   }
 }

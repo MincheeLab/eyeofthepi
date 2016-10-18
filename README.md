@@ -11,6 +11,7 @@ v0.1.0: Timelapse App
 1. Timelapse + video conversion
 2. Webapp to control (start/stop) timelapse: (M)EAN.js
 3. List/download all photos/videos
+4. preview camera (stream)
 
 v0.2.0: Timelapse settings
 1. allow configuration of camera (fx, brightness,...)
