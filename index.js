@@ -8,10 +8,10 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var bodyParser = require('body-parser');
+var multer = require('multer'); // v1.0.5
+var upload = multer();
 
 var io = require('socket.io')(http);
-
-
 
 var spawn = require('child_process').spawn;
 var proc;
@@ -62,10 +62,10 @@ app.post('/timelapses', function(req, res) {
     file.set({
       id: id,
       metadata: {
-        name: 'my timelapse name'
+        name: req.body.name ? req.body.name : id
       },
-      timelapse: 30000,
-      timeout: 2000000
+      timelapse: req.body.timelapse,
+      timeout: req.body.timeout
     });
     file.save().then(function() {
       return res.send(file.data);
