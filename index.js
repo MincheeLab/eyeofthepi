@@ -1,20 +1,111 @@
+var fs = require('fs');
+var path = require('path');
+
+var moment = require('moment');
+var jsonfile = require('json-file-plus');
+
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
+var bodyParser = require('body-parser');
 
 var io = require('socket.io')(http);
 
-var fs = require('fs');
-var path = require('path');
+
 
 var spawn = require('child_process').spawn;
 var proc;
 
 // webapp
 app.use('/', express.static(path.join(__dirname, 'stream')));
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
+
+// initial page, including preview
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
+});
+
+/*
+  list of timelapses from timelapses/ folder
+  each folder include: photos, animated gif thumbnail, config.json and video
+*/
+app.get('/timelapses', function(req, res) {
+  // read timelapses folder
+  var folders = fs.readdir(__dirname + '/timelapses', function(err, files) {
+    if (err) {
+      return res.status(404).send({ message: 'Cannot read timelapse folder', error: '404'});
+    }
+    return res.send(files);
+  });
+});
+
+/*
+  create a new timelapse
+*/
+app.post('/timelapses', function(req, res) {
+  // create a new folder
+  var id = moment().format("YYYYMMDD-hhmmss");
+  var tldir = __dirname + "/timelapses/" + id;
+  fs.mkdirSync(tldir);
+
+  // create config.json file
+  var filename = path.join(tldir, 'config.json');
+  fs.appendFileSync(filename, '{}');
+  
+  // create config file
+  jsonfile(filename, function(err, file) {
+    if (err) {
+      return res.status(404).send({ message: 'Cannot find the file ' + filename, error: '404'});
+    }
+    file.set({
+      id: id,
+      metadata: {
+        name: 'my timelapse name'
+      },
+      timelapse: 30000,
+      timeout: 2000000
+    });
+    file.save().then(function() {
+      return res.send(file.data);
+    }).catch(function(err) {
+      return res.status(500).send({ message: 'Cannot save the config file', error: '500'});
+    })
+  });
+});
+
+/*
+  get a timelapse detail info
+*/
+app.get('/timelapses/:id', function(req, res) {
+  var id = req.params.id;
+  var filename = path.join(__dirname, 'timelapses', id, id + '.json');
+
+  jsonfile(filename, function(err, file) {
+    if (err) {
+      return res.status(404).send({message: 'Cannot find the config file ' + filename, error: '404'});
+    }
+    file.get().then(function(d) {
+      return res.send(d);
+    }).catch(function(err){
+      return res.status(500).send({message: "Cannot read the config file", error: '500'});
+    });
+  });
+});
+
+/*
+  delete a timelapse
+*/
+app.delete('/timelapses/:id', function(req, res) {
+
+});
+
+/*
+  modify an existing timelapse (before it starts)
+*/
+app.put('/timelapses/:id', function(req, res) {
+
 });
 
 http.listen(3000, function() {

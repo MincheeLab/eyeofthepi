@@ -1,0 +1,7 @@
+
+{
+    folders: {
+        timelapses: './timelapses',
+        photos: './photos'
+    }
+}
