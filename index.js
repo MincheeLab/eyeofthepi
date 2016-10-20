@@ -45,6 +45,12 @@ app.get('/timelapses', function(req, res) {
 */
 app.post('/timelapses', function(req, res) {
   var tl = new Timelapse(req.body, function(err, t) {
+    tl.start(function(err, v){
+      if (err) {
+        return res.status(500).send({ message: 'Problem with the timelapse', error: '500'});
+      }
+      console.log('========= timelapse completed ============');
+    })
     return res.send(t);
   });
 });

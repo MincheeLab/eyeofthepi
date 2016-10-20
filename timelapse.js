@@ -31,6 +31,7 @@ var timelapseSchema = {
 */
 
 var Timelapse = function (data, callback) {
+  this.settings = {};
   // id => load existing timelapse
   if (typeof(data) === 'string') {
     this.load(data, callback);
@@ -54,23 +55,23 @@ Timelapse.prototype.create = function(data, callback) {
   fs.appendFileSync(filename, '{}');
   
   // create config file
+  var self = this;
   jsonfile(filename, function(err, file) {
     if (err) {
-      return;
+      return callback(err);
     }
     file.set({
       id: id,
       metadata: {
         name: data.name ? data.name : id
       },
-      timelapse: data.timelapse,
-      timeout: data.timeout
+      opts: data.opts
     });
     file.save().then(function() {
+      self.settings = file.data;
       return callback(null, file.data);
-      // res.send(file.data);
     }).catch(function(err) {
-      return; //res.status(500).send({ message: 'Cannot save the config file', error: '500'});
+      return callback(err); 
     })
   });
 }
@@ -80,15 +81,15 @@ Timelapse.prototype.load = function(id, callback) {
   var filename = path.join(__dirname, 'timelapses', id, id + '.json');
 
   jsonfile(filename, function(err, file) {
-    if (!err) {
-      file.get().then(function(d) {
-        self.data = d;
-        return callback(null, self.data);
-      }).catch(function(err){
-        console.log('500', err);
-        return;
-      });
+    if (err) {
+      callback(err);
     }
+    file.get().then(function(d) {
+      self.settings = d;
+      return callback(null, self.settings);
+    }).catch(function(err){
+      return callback(err);
+    });
   });
 }
 
@@ -119,35 +120,37 @@ Timelapse.prototype.remove = function(callback) {
   console.log('removing the timelapse..', this.id);
 }
 
-Timelapse.prototype.run = function(id, callback) {
+Timelapse.prototype.start = function(callback) {
+  console.log(`This platform is ${process.platform}`);
+  this.settings.opts = {
+        mode: "timelapse", //photo, timelapse, video
+        output: path + "/pic-%04d.jpg",
+        timelapse: 10000,
+        timeout: 2000000,
+        width: 2592,
+        height: 1944,
+        quality: 80
+  };
+  
+  var camera = new Camera(this.settings.opts, {silent: true});
+  camera.start();
 
+  camera.on("start", function(){
+	  console.log("starting timelapse at " + moment().format('MMMM Do YYYY, h:mm:ss a'));
+  });
+
+  camera.on("read", function(err, filename){
+	  console.log("one more photo!");
+  });
+
+  camera.on("exit", function(){
+    console.log("stopping timelapse, starting avconv....");
+    return callback(null);
+    // camera.stop();
+  })
 }
 
 module.exports = Timelapse;
-
-// Setup
-// console.log(`This platform is ${process.platform}`);
-// TODO:
-// try {
-//   fs.accessSync(__dirname + "/shots");
-// } catch (e) {
-//   fs.mkdirSync(__dirname + "/shots");
-// }
-// var dir = moment().format("YYYYMMDD-hhmmss");
-// var path = __dirname + "/shots/" + dir;
-
-// // Camera timelapse
-// var opts = {
-//         mode: "timelapse", //photo, timelapse, video
-//         output: path + "/pic-%04d.jpg",
-//         timelapse: 10000,
-//         timeout: 2000000,
-//         width: 2592,
-//         height: 1944,
-//         quality: 80
-// };
-// var camera = new Camera(opts, {silent: true});
-// camera.start( );
 
 
 // //listen for the "started" event triggered when the start method has been successfully initiated

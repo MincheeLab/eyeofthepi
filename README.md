@@ -13,9 +13,10 @@ v0.1.0: Timelapse App
 3. List/download all photos/videos
 4. preview camera (stream)
 
-v0.2.0: Timelapse settings
+v0.2.0: Timelapse advanced settings
 1. allow configuration of camera (fx, brightness,...)
-2. Avconv settings: framerate, photos selection...
+2. allow cronjob of timelapse
+3. Avconv settings: framerate, photos selection...
 
 v0.3.0: Preview
 1. Preview photo/video (webRTC, websocket?)
