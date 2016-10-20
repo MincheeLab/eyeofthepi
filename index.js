@@ -3,18 +3,17 @@ var path = require('path');
 
 var moment = require('moment');
 var jsonfile = require('json-file-plus');
-
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var bodyParser = require('body-parser');
-var multer = require('multer'); // v1.0.5
+var multer = require('multer');
 var upload = multer();
-
 var io = require('socket.io')(http);
-
 var spawn = require('child_process').spawn;
 var proc;
+
+var Timelapse = require('./timelapse');
 
 // webapp
 app.use('/', express.static(path.join(__dirname, 'stream')));
@@ -45,33 +44,8 @@ app.get('/timelapses', function(req, res) {
   create a new timelapse
 */
 app.post('/timelapses', function(req, res) {
-  // create a new folder
-  var id = moment().format("YYYYMMDD-hhmmss");
-  var tldir = __dirname + "/timelapses/" + id;
-  fs.mkdirSync(tldir);
-
-  // create config.json file
-  var filename = path.join(tldir, 'config.json');
-  fs.appendFileSync(filename, '{}');
-  
-  // create config file
-  jsonfile(filename, function(err, file) {
-    if (err) {
-      return res.status(404).send({ message: 'Cannot find the file ' + filename, error: '404'});
-    }
-    file.set({
-      id: id,
-      metadata: {
-        name: req.body.name ? req.body.name : id
-      },
-      timelapse: req.body.timelapse,
-      timeout: req.body.timeout
-    });
-    file.save().then(function() {
-      return res.send(file.data);
-    }).catch(function(err) {
-      return res.status(500).send({ message: 'Cannot save the config file', error: '500'});
-    })
+  var tl = new Timelapse(req.body, function(err, t) {
+    return res.send(t);
   });
 });
 
@@ -80,17 +54,8 @@ app.post('/timelapses', function(req, res) {
 */
 app.get('/timelapses/:id', function(req, res) {
   var id = req.params.id;
-  var filename = path.join(__dirname, 'timelapses', id, id + '.json');
-
-  jsonfile(filename, function(err, file) {
-    if (err) {
-      return res.status(404).send({message: 'Cannot find the config file ' + filename, error: '404'});
-    }
-    file.get().then(function(d) {
-      return res.send(d);
-    }).catch(function(err){
-      return res.status(500).send({message: "Cannot read the config file", error: '500'});
-    });
+  var tl = new Timelapse(id, function(err, t) {
+    return res.send(t);
   });
 });
 
@@ -98,7 +63,14 @@ app.get('/timelapses/:id', function(req, res) {
   delete a timelapse
 */
 app.delete('/timelapses/:id', function(req, res) {
-
+  var t = new Timelapse();
+  t.load(req.params.id, function(err){
+    t.remove(function(err){
+      if (!err) {
+        return res.status(200).send({message: 'Timelapse deleted.'});
+      }
+    })
+  })
 });
 
 /*
