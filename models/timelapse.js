@@ -28,9 +28,7 @@ var timelapseSchema = {
   }
 };
 
-
 var Timelapse = function (data, callback) {
-  this.settings = Object.assign({}, timelapseSchema);
   // id => load existing timelapse
   if (typeof(data) === 'string') {
     this.load(data, callback);
@@ -44,10 +42,12 @@ var Timelapse = function (data, callback) {
 Timelapse.prototype.data = {}
 
 Timelapse.prototype.create = function(data, callback) {
+  this.settings = Object.assign({}, timelapseSchema, data);
   // create a new folder
   var id = moment().format("YYYYMMDD-hhmmss");
-  var tldir = __dirname + "/timelapses/" + id;
+  var tldir = path.join(__dirname, "../timelapses", id);
   fs.mkdirSync(tldir);
+  this.settings.id = id;
 
   // create config.json file
   var filename = path.join(tldir, 'config.json');
@@ -59,13 +59,7 @@ Timelapse.prototype.create = function(data, callback) {
     if (err) {
       return callback(err);
     }
-    file.set({
-      id: id,
-      metadata: {
-        name: data.name ? data.name : id
-      },
-      opts: data.opts
-    });
+    file.set(self.settings);
     file.save().then(function() {
       self.settings = file.data;
       return callback(null, file.data);
@@ -77,8 +71,8 @@ Timelapse.prototype.create = function(data, callback) {
 
 Timelapse.prototype.load = function(id, callback) {
   var self = this;
-  var filename = path.join(__dirname, 'timelapses', id, id + '.json');
-
+  var filename = path.join(__dirname, '../timelapses', id, 'config.json');
+  
   jsonfile(filename, function(err, file) {
     if (err) {
       callback(err);
