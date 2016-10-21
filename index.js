@@ -35,12 +35,17 @@ app.get('/timelapses', function(req, res) {
   var configFiles = [];
   // read timelapses folder and load all config.json
   find.file(/\.json$/, path.join(__dirname, 'timelapses'), function(files){
+    if (!files.length) {
+      return res.send(configFiles);
+    }
     files.forEach(function(file, idx) {
       configFiles.push(JSON.parse(fs.readFileSync(file, {encoding: 'utf8'})));
       if (idx >= files.length - 1) {
         return res.send(configFiles);
       }
     }, this);
+  }).error(function(err) {
+    return res.status(500).send({message: 'Cannot read the timelapses folder', error: 500});
   });
 });
 
