@@ -3,11 +3,13 @@ var path = require('path');
 var express = require('express');
 var router = express.Router();
 var find = require('find');
-var Timelapse = require('../models/timelapse');
+var Timelapse = require('./models/timelapse');
 
 router.get('/', function (req, res, next) {
     res.render('index');
 });
+
+fs.mkdir('./timelapses', function(err) {});
 
 /*
   GET /timelapses
@@ -17,7 +19,7 @@ router.get('/', function (req, res, next) {
 router.get('/timelapses', function (req, res, next) {
   var configFiles = [];
   // read timelapses folder and load all config.json
-  find.file(/\.json$/, path.join(__dirname, '../timelapses'), function(files){
+  find.file(/\.json$/, path.join(__dirname, './timelapses'), function(files){
       if (!files.length) {
       return res.send(configFiles);
   }

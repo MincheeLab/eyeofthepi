@@ -6,8 +6,10 @@ var avconv = require("avconv");
 var Camera = require("raspicam");
 
 /*
-  TODO methods: run, video, update, remove
-  
+  TODO 
+  methods: run, video, update, remove
+  path to timelapse folder to fix
+  timelapse default settings (editable in UI => json file)
 */
 
 var timelapseSchema = {
@@ -43,6 +45,7 @@ Timelapse.prototype.data = {}
 
 Timelapse.prototype.create = function(data, callback) {
   this.settings = Object.assign({}, timelapseSchema, data);
+
   // create a new folder
   var id = moment().format("YYYYMMDD-hhmmss");
   var tldir = path.join(__dirname, "../timelapses", id);
@@ -72,10 +75,9 @@ Timelapse.prototype.create = function(data, callback) {
 Timelapse.prototype.load = function(id, callback) {
   var self = this;
   var filename = path.join(__dirname, '../timelapses', id, 'config.json');
-  
   jsonfile(filename, function(err, file) {
     if (err) {
-      callback(err);
+      return callback(err);
     }
     file.get().then(function(d) {
       self.settings = d;
@@ -115,18 +117,18 @@ Timelapse.prototype.remove = function(callback) {
 }
 
 Timelapse.prototype.start = function(callback) {
-  console.log(`This platform is ${process.platform}`);
-  this.settings.opts = {
-        mode: "timelapse", //photo, timelapse, video
-        output: path + "/pic-%04d.jpg",
+  var dir = path.join(__dirname, "../timelapses", this.settings.id);
+  var opts = {
+        mode: "timelapse",
+        output: dir + "/pic-%04d.jpg",
         timelapse: 10000,
         timeout: 2000000,
         width: 2592,
         height: 1944,
         quality: 80
   };
-  
-  this.camera = new Camera(this.settings.opts, {silent: true});
+  Object.assign(opts, this.settings.opts);
+  this.camera = new Camera(opts);
   this.camera.start();
 
   camera.on("start", function(){

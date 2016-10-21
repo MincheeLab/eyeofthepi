@@ -6,7 +6,7 @@ var spawn = require('child_process').spawn;
 var proc;
 
 var express = require('express');
-var appRoutes = require('./routes/app');
+var appRoutes = require('./app');
 var app = express();
 var http = require('http').Server(app);
 var bodyParser = require('body-parser');
