@@ -134,18 +134,7 @@ Timelapse.prototype.remove = function(callback) {
 Timelapse.prototype.start = function(callback) {
   var self = this;
   var dir = path.join(__dirname, "../timelapses", this.settings.id);
-  var opts = {
-        mode: "timelapse",
-        output: dir + "/pic-%04d.jpg",
-        timelapse: 10000,
-        timeout: 2000000,
-        width: 2592,
-        height: 1944,
-        quality: 80,
-        nopreview: true
-        // "verbose": true
-  };
-  _.merge(opts, this.settings.opts);
+  this.settings.opts.output = dir + "/pic-%04d.jpg";
   this.camera = new Camera(opts);
   this.camera.start();
 
