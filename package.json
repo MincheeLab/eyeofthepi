@@ -24,6 +24,7 @@
     "avconv": "^3.0.2",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "find": "^0.2.7",
     "json-file-plus": "^3.3.0",
     "moment": "^2.15.1",
     "multer": "^1.2.0",

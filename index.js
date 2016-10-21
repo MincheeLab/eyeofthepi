@@ -12,6 +12,7 @@ var upload = multer();
 var io = require('socket.io')(http);
 var spawn = require('child_process').spawn;
 var proc;
+var find = require('find');
 
 var Timelapse = require('./timelapse');
 
@@ -31,23 +32,35 @@ app.get('/', function(req, res) {
   each folder include: photos, animated gif thumbnail, config.json and video
 */
 app.get('/timelapses', function(req, res) {
-  // read timelapses folder
-  var folders = fs.readdir(__dirname + '/timelapses', function(err, files) {
-    if (err) {
-      return res.status(404).send({ message: 'Cannot read timelapse folder', error: '404'});
-    }
-    return res.send(files);
+  var configFiles = [];
+  // read timelapses folder and load all config.json
+  find.file(/\.json$/, path.join(__dirname, 'timelapses'), function(files){
+    files.forEach(function(file, idx) {
+      configFiles.push(JSON.parse(fs.readFileSync(file, {encoding: 'utf8'})));
+      if (idx >= files.length - 1) {
+        return res.send(configFiles);
+      }
+    }, this);
   });
 });
 
 /*
   create a new timelapse
+  TODO: 
+    - cronjob scheduling
+    - websockets to inform every photo and the video (if required)
 */
 app.post('/timelapses', function(req, res) {
   var tl = new Timelapse(req.body, function(err, t) {
     tl.start(function(err, v){
       if (err) {
         return res.status(500).send({ message: 'Problem with the timelapse', error: '500'});
+      }
+      // transform photos into a video
+      if (req.body.transform) {
+        tl.transform(function(err){
+
+        });
       }
       console.log('========= timelapse completed ============');
     })

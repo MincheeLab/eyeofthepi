@@ -6,21 +6,20 @@ var avconv = require("avconv");
 var Camera = require("raspicam");
 
 /*
-  TODO methods: run, video, update, remove, schema
+  TODO methods: run, video, update, remove
   
 */
 
-/* 
 var timelapseSchema = {
-  id: foldername,
+  id: null,
   metadata: {
-    name: 'name of timelapse | default to id',
-    nbPhoto: 183,
-    video: 'default id.mkv'
+    name: '', //default to id
+    nbPhoto: 0,
+    video: '' 
   },
   opts: { //raspistill params
     mode: "timelapse",
-    output: path + "/pic-%04d.jpg",
+    output: "pic-%04d.jpg",
     timelapse: 10000,
     timeout: 2000000,
     width: 2592,
@@ -28,10 +27,10 @@ var timelapseSchema = {
     quality: 80
   }
 };
-*/
+
 
 var Timelapse = function (data, callback) {
-  this.settings = {};
+  this.settings = Object.assign({}, timelapseSchema);
   // id => load existing timelapse
   if (typeof(data) === 'string') {
     this.load(data, callback);
@@ -118,6 +117,7 @@ Timelapse.prototype.update = function (data, callback) {
 
 Timelapse.prototype.remove = function(callback) {
   console.log('removing the timelapse..', this.id);
+
 }
 
 Timelapse.prototype.start = function(callback) {
@@ -132,8 +132,8 @@ Timelapse.prototype.start = function(callback) {
         quality: 80
   };
   
-  var camera = new Camera(this.settings.opts, {silent: true});
-  camera.start();
+  this.camera = new Camera(this.settings.opts, {silent: true});
+  this.camera.start();
 
   camera.on("start", function(){
 	  console.log("starting timelapse at " + moment().format('MMMM Do YYYY, h:mm:ss a'));
@@ -146,29 +146,11 @@ Timelapse.prototype.start = function(callback) {
   camera.on("exit", function(){
     console.log("stopping timelapse, starting avconv....");
     return callback(null);
-    // camera.stop();
+    // this.camera.stop();
   })
 }
 
-module.exports = Timelapse;
-
-
-// //listen for the "started" event triggered when the start method has been successfully initiated
-// camera.on("start", function(){
-// 	console.log("starting timelapse at " + moment().format('MMMM Do YYYY, h:mm:ss a'));
-// });
-
-// //listen for the "read" event triggered when each new photo/video is saved
-// camera.on("read", function(err, filename){
-// 	console.log("one more photo!");
-// });
-
-// //listen for the process to exit when the timeout has been reached
-// camera.on("exit", function(){
-//   // TODO: shout to application
-// 	console.log("stopping timelapse, starting avconv....");
-//   camera.stop();
-
+Timelapse.prototype.transform = function(callback) {
 //   var params = [
 //     '-framerate', '25',
 //     '-f', 'image2',
@@ -193,5 +175,6 @@ module.exports = Timelapse;
 //   stream.once('exit', function(exitCode, signal, metadata) {
 //     console.log('here I am officially DONE!!!');
 //   });
+}
 
-// });
+module.exports = Timelapse;
