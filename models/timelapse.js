@@ -135,7 +135,7 @@ Timelapse.prototype.start = function(callback) {
   var self = this;
   var dir = path.join(__dirname, "../timelapses", this.settings.id);
   this.settings.opts.output = dir + "/pic-%04d.jpg";
-  this.camera = new Camera(opts);
+  this.camera = new Camera(this.settings.opts);
   this.camera.start();
 
   camera.on("start", function(err, timestamp){
