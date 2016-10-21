@@ -10,6 +10,7 @@ var Camera = require("raspicam");
   methods: run, video, update, remove
   path to timelapse folder to fix
   timelapse default settings (editable in UI => json file)
+  update json file when timelapse is completed
 */
 
 var timelapseSchema = {
@@ -125,7 +126,8 @@ Timelapse.prototype.start = function(callback) {
         timeout: 2000000,
         width: 2592,
         height: 1944,
-        quality: 80
+        quality: 80,
+        "verbose": true
   };
   Object.assign(opts, this.settings.opts);
   this.camera = new Camera(opts);
@@ -136,13 +138,13 @@ Timelapse.prototype.start = function(callback) {
   });
 
   camera.on("read", function(err, filename){
-	  console.log("one more photo!");
+	  console.log("Smile!");
   });
 
   camera.on("exit", function(){
-    console.log("stopping timelapse, starting avconv....");
+    // store the nb of photos
+
     return callback(null);
-    // this.camera.stop();
   })
 }
 
