@@ -139,6 +139,10 @@ Timelapse.prototype.start = function(callback) {
   camera = new Camera(this.settings.opts);
   camera.start();
 
+  camera.on('started', function(err, timestamp){
+    console.log("starting timelapse at " + moment().format('MMMM Do YYYY, h:mm:ss a'));
+  })
+
   camera.on("start", function(err, timestamp){
     if (err) {
       return console.log(err);
@@ -148,8 +152,10 @@ Timelapse.prototype.start = function(callback) {
   });
 
   camera.on("read", function(err, timestamp , filename){
-    self.settings.metadata.nbPhotos += 1;
-	  console.log("Smile!", filename);
+    if (path.extname(filename) === 'jpg') {
+      self.settings.metadata.nbPhotos += 1;
+	    console.log("Smile!", filename);
+    }
   });
 
   camera.on("exit", function(timestamp){
