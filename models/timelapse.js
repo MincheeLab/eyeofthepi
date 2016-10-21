@@ -2,6 +2,7 @@ var fs = require("fs");
 var path = require('path');
 var jsonfile = require('json-file-plus');
 var moment = require("moment");
+var _ = require("lodash");
 var avconv = require("avconv");
 var Camera = require("raspicam");
 
@@ -11,13 +12,14 @@ var Camera = require("raspicam");
   path to timelapse folder to fix
   timelapse default settings (editable in UI => json file)
   update json file when timelapse is completed
+  send websockets update on timelapse and video conversion
 */
 
 var timelapseSchema = {
   id: null,
   metadata: {
     name: '', //default to id
-    nbPhoto: 0,
+    nbPhotos: 0,
     video: '' 
   },
   opts: { //raspistill params
@@ -27,7 +29,8 @@ var timelapseSchema = {
     timeout: 2000000,
     width: 2592,
     height: 1944,
-    quality: 80
+    quality: 80,
+    nopreview: true
   }
 };
 
@@ -45,9 +48,11 @@ var Timelapse = function (data, callback) {
 Timelapse.prototype.data = {}
 
 Timelapse.prototype.create = function(data, callback) {
-  this.settings = Object.assign({}, timelapseSchema, data);
+  var self = this;
+  this.settings = {};
+  _.merge(this.settings, timelapseSchema, data);
 
-  // create a new folder
+  // create a new id / folder
   var id = moment().format("YYYYMMDD-hhmmss");
   var tldir = path.join(__dirname, "../timelapses", id);
   fs.mkdirSync(tldir);
@@ -57,20 +62,12 @@ Timelapse.prototype.create = function(data, callback) {
   var filename = path.join(tldir, 'config.json');
   fs.appendFileSync(filename, '{}');
   
-  // create config file
-  var self = this;
-  jsonfile(filename, function(err, file) {
+  this.saveSettings(function(err, rs) {
     if (err) {
       return callback(err);
     }
-    file.set(self.settings);
-    file.save().then(function() {
-      self.settings = file.data;
-      return callback(null, file.data);
-    }).catch(function(err) {
-      return callback(err); 
-    })
-  });
+    return callback(null, self.settings);
+  })
 }
 
 Timelapse.prototype.load = function(id, callback) {
@@ -97,6 +94,23 @@ Timelapse.prototype.set = function (name, value) {
     this.data[name] = value;
 }
 
+Timelapse.prototype.saveSettings = function(callback) {
+  var self = this;
+  var filename = path.join(__dirname, '../timelapses', this.settings.id, 'config.json');
+  // create config file
+  jsonfile(filename, function(err, file) {
+    if (err) {
+      return callback(err);
+    }
+    file.set(self.settings);
+    file.save().then(function() {
+      return callback(null, self.settings);
+    }).catch(function(err) {
+      return callback(err); 
+    })
+  });
+}
+
 Timelapse.findById = function (id, callback) {  
     // db.get('Timelapses', {id: id}).run(function (err, data) {
     //     if (err) return callback(err);
@@ -118,6 +132,7 @@ Timelapse.prototype.remove = function(callback) {
 }
 
 Timelapse.prototype.start = function(callback) {
+  var self = this;
   var dir = path.join(__dirname, "../timelapses", this.settings.id);
   var opts = {
         mode: "timelapse",
@@ -127,23 +142,30 @@ Timelapse.prototype.start = function(callback) {
         width: 2592,
         height: 1944,
         quality: 80,
-        "verbose": true
+        nopreview: true
+        // "verbose": true
   };
-  Object.assign(opts, this.settings.opts);
+  _.merge(opts, this.settings.opts);
   this.camera = new Camera(opts);
   this.camera.start();
 
-  camera.on("start", function(){
+  camera.on("start", function(err, timestamp){
+    if (err) {
+      return console.log(err);
+    }
+    self.settings.metadata.start_time = timestamp;
 	  console.log("starting timelapse at " + moment().format('MMMM Do YYYY, h:mm:ss a'));
   });
 
-  camera.on("read", function(err, filename){
-	  console.log("Smile!");
+  camera.on("read", function(err, timestamp , filename){
+    self.settings.metadata.nbPhotos += 1;
+	  console.log("Smile!", filename);
   });
 
-  camera.on("exit", function(){
-    // store the nb of photos
-
+  camera.on("exit", function(timestamp){
+    self.settings.metadata.end_time = timestamp;
+    // store all metadata
+    self.saveSettings();
     return callback(null);
   })
 }

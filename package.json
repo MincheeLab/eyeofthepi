@@ -27,6 +27,7 @@
     "express": "^4.14.0",
     "find": "^0.2.7",
     "json-file-plus": "^3.3.0",
+    "lodash": "^4.16.4",
     "moment": "^2.15.1",
     "multer": "^1.2.0",
     "raspicam": "^0.2.13",
