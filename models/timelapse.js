@@ -144,12 +144,12 @@ Timelapse.prototype.start = function(callback) {
       return console.log(err);
     }
     self.settings.metadata.start_time = timestamp;
-	  console.log("starting timelapse at " + moment().format('MMMM Do YYYY, h:mm:ss a'));
   });
 
   camera.on("read", function(err, timestamp , filename){
-    console.log("Smile!", filename, path.extname(path.basename(filename)),path.extname(path.basename(filename)) === 'jpg');
-    if (path.extname(path.basename(filename)) === 'jpg') {
+    var re = /\.jpg\~$/i;
+    var found = filename.match(re);
+    if (!found) {
       self.settings.metadata.nbPhotos += 1;
     }
   });
