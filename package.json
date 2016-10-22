@@ -15,12 +15,12 @@
   "license": "GPL-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MincheeLab/raspicamapp.git"
+    "url": "git+https://github.com/MincheeLab/eyeofthepi.git"
   },
   "bugs": {
-    "url": "https://github.com/MincheeLab/raspicamapp/issues"
+    "url": "https://github.com/MincheeLab/eyeofthepi/issues"
   },
-  "homepage": "https://github.com/MincheeLab/raspicamapp#readme",
+  "homepage": "https://github.com/MincheeLab/eyeofthepi#readme",
   "dependencies": {
     "avconv": "^3.0.2",
     "body-parser": "^1.15.2",
