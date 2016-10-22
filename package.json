@@ -1,6 +1,6 @@
 {
   "name": "eyeofthepi",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "app to control Raspberry Pi Camera",
   "main": "index.js",
   "scripts": {
