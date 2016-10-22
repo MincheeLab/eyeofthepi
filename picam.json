@@ -1,0 +1,14 @@
+
+{
+    "commandline": "raspistill",
+    "mode": ["timelapse", "photo", "video"],
+    "defaults": {},
+    "sizes": {
+        "width": [],
+        "height": []
+    },
+    "folders": {
+        "timelapses": "./timelapses",
+        "photos": "./photos"
+    }
+}
