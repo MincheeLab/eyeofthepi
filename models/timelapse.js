@@ -140,6 +140,7 @@ Timelapse.prototype.start = function(callback) {
   camera.start();
 
   camera.on("start", function(err, timestamp){
+    console.log("start==============", err, timestamp);
     if (err) {
       return console.log(err);
     }
@@ -148,11 +149,12 @@ Timelapse.prototype.start = function(callback) {
   
 
   camera.on("read", function(err, timestamp , filename){
-    var re = /\.jpg\~$/i;
-    var found = filename.match(re);
-    if (!found) {
+    // fix for previous raspicam npm lib
+    // var re = /\~$/i;
+    // var found = filename.match(re);
+    // if (!found) {
       self.settings.metadata.nbPhotos += 1;
-    }
+    // }
   });
 
   camera.on("exit", function(timestamp){
