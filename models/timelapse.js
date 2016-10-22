@@ -145,6 +145,7 @@ Timelapse.prototype.start = function(callback) {
     }
     self.settings.metadata.start_time = timestamp;
   });
+  
 
   camera.on("read", function(err, timestamp , filename){
     var re = /\.jpg\~$/i;
