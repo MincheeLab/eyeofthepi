@@ -38,8 +38,8 @@ var upload = multer();
 // module.exports = app;
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
-// app.use('/', express.static(path.join(__dirname, 'stream')));
+// app.set('view engine', 'hbs');
+app.use('/', express.static(path.join(__dirname, 'stream')));
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use('/', appRoutes);
@@ -47,6 +47,8 @@ app.use('/', appRoutes);
 http.listen(3000, function() {
   console.log('listening on *:3000');
 });
+
+fs.mkdir('./timelapses', function(err) {});
 
 // websockets
 var sockets = {};

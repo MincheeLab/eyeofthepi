@@ -9,8 +9,6 @@ router.get('/', function (req, res, next) {
     res.render('index');
 });
 
-fs.mkdir('./timelapses', function(err) {});
-
 /*
   GET /timelapses
   list of timelapses from timelapses/ folder
