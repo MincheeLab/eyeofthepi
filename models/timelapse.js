@@ -20,7 +20,8 @@ var timelapseSchema = {
   metadata: {
     name: '', //default to id
     nbPhotos: 0,
-    video: '' 
+    video: '',
+    gif: ''
   },
   opts: { //raspistill params
     mode: "timelapse",
